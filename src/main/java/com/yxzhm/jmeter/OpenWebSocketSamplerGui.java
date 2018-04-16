@@ -2,18 +2,17 @@ package com.yxzhm.jmeter;
 
 import org.apache.jmeter.samplers.gui.AbstractSamplerGui;
 import org.apache.jmeter.testelement.TestElement;
-import org.apache.jmeter.util.JMeterUtils;
 
 import java.awt.*;
 
 public class OpenWebSocketSamplerGui extends AbstractSamplerGui {
     private OpenWebSocketSamplerGuiPanel settingsPanel;
 
-    public OpenWebSocketSamplerGui(){
+    public OpenWebSocketSamplerGui() {
         init();
     }
 
-    private void init(){
+    private void init() {
         super.setName(getLabelResource());
         setLayout(new BorderLayout(0, 5));
         setBorder(makeBorder());
@@ -24,7 +23,7 @@ public class OpenWebSocketSamplerGui extends AbstractSamplerGui {
 
     @Override
     public String getStaticLabel() {
-        return "Nuance WebSocket Open Connection";
+        return "Nuance WebSocket Open Sampler";
     }
 
     public String getLabelResource() {
@@ -52,7 +51,7 @@ public class OpenWebSocketSamplerGui extends AbstractSamplerGui {
 
     public void modifyTestElement(TestElement testElement) {
         super.configureTestElement(testElement);
-        if(testElement instanceof OpenWebSocketSampler){
+        if (testElement instanceof OpenWebSocketSampler) {
             OpenWebSocketSampler sampler = (OpenWebSocketSampler) testElement;
             sampler.setTLS(settingsPanel.getTLS());
             sampler.setServer(settingsPanel.getServer());

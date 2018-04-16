@@ -42,7 +42,6 @@ public class OpenWebSocketSamplerGuiPanel extends JPanel {
         urlPanel.add(portLabel);
         portField = new JTextField();
         portField.setText("80");
-//        addIntegerRangeCheck(portField, 1, 65535);
         portField.setColumns(5);
         portField.setMaximumSize(portField.getPreferredSize());
         urlPanel.add(portField);
@@ -76,7 +75,7 @@ public class OpenWebSocketSamplerGuiPanel extends JPanel {
         return serverField.getText();
     }
 
-    public void setServer(String server){
+    public void setServer(String server) {
         serverField.setText(server);
     }
 
@@ -85,7 +84,7 @@ public class OpenWebSocketSamplerGuiPanel extends JPanel {
 
     }
 
-    public void setPort(String port){
+    public void setPort(String port) {
         portField.setText(port);
     }
 
@@ -93,7 +92,7 @@ public class OpenWebSocketSamplerGuiPanel extends JPanel {
         return pathField.getText();
     }
 
-    public void setPath(String path){
+    public void setPath(String path) {
         pathField.setText(path);
     }
 

@@ -17,7 +17,7 @@ public class OpenWebSocketSampler extends AbstractSampler implements ThreadListe
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(OpenWebSocketSampler.class);
 
     public SampleResult sample(Entry entry) {
-        dispose(ConnectionCache.getCachedWSConnection().get());
+        Utility.dispose(Utility.getCachedWSConnection().get());
         SampleResult result = new SampleResult();
         result.setSampleLabel(getName());
         result.sampleStart();
@@ -27,6 +27,7 @@ public class OpenWebSocketSampler extends AbstractSampler implements ThreadListe
             logger.info("Connecting " + url);
             WebSocket ws = new WebSocketFactory().createSocket(url,5000);
             WebSocket connected = ws.connect();
+            Utility.getCachedWSConnection().set(ws);
             result.sampleEnd();
             result.setSuccessful(true);
             result.setResponseCodeOK();
@@ -59,23 +60,9 @@ public class OpenWebSocketSampler extends AbstractSampler implements ThreadListe
     }
 
     public void threadFinished() {
-        dispose(ConnectionCache.getCachedWSConnection().get());
+        Utility.dispose(Utility.getCachedWSConnection().get());
     }
 
-    private void dispose(WebSocket ws) {
-        if (ws != null) {
-            try {
-                if(ws.getState()==WebSocketState.OPEN) {
-                    ws.disconnect();
-                }
-                ws=null;
-                ConnectionCache.getCachedWSConnection().remove();
-            } catch (Exception ex) {
-
-            }
-
-        }
-    }
 
     public boolean getTLS() {
         return getPropertyAsBoolean("TLS");
