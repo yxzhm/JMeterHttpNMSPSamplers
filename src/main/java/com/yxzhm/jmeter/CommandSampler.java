@@ -62,11 +62,14 @@ public class CommandSampler extends AbstractSampler implements ThreadListener {
                 logger.info("Waiting for messages");
                 try {
                     Thread.sleep(50);
-                    if(System.currentTimeMillis()-oldTime>timeoutTimer){
+                    long deltaTime= System.currentTimeMillis()-oldTime;
+                    if(deltaTime>timeoutTimer){
                         result.setSuccessful(false);
                         result.setResponseCode("FAILED");
                         result.setResponseMessage("Waiting Response Timeout");
                         break;
+                    }else{
+                        logger.info("Waiting "+deltaTime+" ms");
                     }
 
                     for(String msg : receivedMsg){
