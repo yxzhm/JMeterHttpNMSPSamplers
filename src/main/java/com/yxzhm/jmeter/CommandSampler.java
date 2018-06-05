@@ -7,8 +7,12 @@ import org.apache.jmeter.samplers.AbstractSampler;
 import org.apache.jmeter.samplers.Entry;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.testelement.ThreadListener;
+import org.apache.logging.log4j.util.Strings;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,13 +39,15 @@ public class CommandSampler extends AbstractSampler implements ThreadListener {
             int commandNum = getCommandNum();
             logger.info("Start the send " + commandNum + " Commands");
             ws.clearListeners();
-            final List<String> receivedMsg=new ArrayList<String>();
+            final List<String> receivedMsg = new ArrayList<>();
+            StringBuffer sb = new StringBuffer();
+
             ws.addListener(new WebSocketAdapter() {
                 @Override
-                public void onTextMessage(WebSocket websocket, String message) throws Exception {
-                    // Received a text message.
+                public void onTextMessage(WebSocket websocket, String message) {
                     logger.info("REV: " + message);
                     receivedMsg.add(message);
+                    sb.append(message + Strings.LINE_SEPARATOR);
                 }
             });
 
@@ -52,31 +58,44 @@ public class CommandSampler extends AbstractSampler implements ThreadListener {
                     logger.info("SED: " + content);
                     ws.sendText(content);
                 } else if (type == CommandSamplerGuiPanel.CommandType.AUDIO) {
-                    //todo
+                    try {
+                        Path path = Paths.get(getCommandContent(i));
+                        byte[] data = Files.readAllBytes(path);
+                        ws.sendBinary(data);
+                        logger.info("SED: Audio {} bytes", data.length);
+                    } catch (Exception e) {
+                        logger.error("Can't open audio file.");
+                        e.printStackTrace();
+                        result.setSuccessful(false);
+                        result.setResponseCode("FAILED");
+                        result.setResponseMessage(e.getMessage());
+                        return result;
+                    }
                 }
             }
             result.sampleStart();
             long oldTime = System.currentTimeMillis();
-            long timeoutTimer = 5*1000;
-            while (receivedMsg.size()<4){
-                logger.info("Waiting for messages");
+            long timeoutTimer = 5 * 1000;
+            while (receivedMsg.size() < 4) {
+                logger.debug("Waiting for messages");
                 try {
                     Thread.sleep(50);
-                    long deltaTime= System.currentTimeMillis()-oldTime;
-                    if(deltaTime>timeoutTimer){
+                    long deltaTime = System.currentTimeMillis() - oldTime;
+                    if (deltaTime > timeoutTimer) {
                         result.setSuccessful(false);
                         result.setResponseCode("FAILED");
                         result.setResponseMessage("Waiting Response Timeout");
                         break;
-                    }else{
-                        logger.info("Waiting "+deltaTime+" ms");
+                    } else {
+                        logger.debug("Waiting " + deltaTime + " ms");
                     }
 
-                    for(String msg : receivedMsg){
-                        if(msg.toLowerCase().contains("query_response") && result.isStampedAtStart()){
+                    for (String msg : receivedMsg) {
+                        if (msg.toLowerCase().contains("query_response") && result.isStampedAtStart()) {
                             result.sampleEnd();
                         }
-                        if(msg.toLowerCase().contains("transaction completed")){
+                        if (msg.toLowerCase().contains("transaction completed")) {
+                            result.setResponseMessage(sb.toString());
                             result.setSuccessful(true);
                             break;
                         }
@@ -90,9 +109,7 @@ public class CommandSampler extends AbstractSampler implements ThreadListener {
             }
 
 
-
         }
-
         return result;
     }
 
