@@ -24,7 +24,12 @@ public class CommandSamplerGuiPanel extends JPanel {
 
     JComboBox<String> contentSelector;
     JButton addButton, delButton;
-    JPanel  opPanel, responsePanel;
+    JPanel opPanel, responsePanel, headerPanel, timeoutPanel;
+    JLabel timeoutLabel;
+
+    @Getter
+    JTextField timeoutField;
+
 
     @Getter
     JPanel commandPanel;
@@ -32,24 +37,31 @@ public class CommandSamplerGuiPanel extends JPanel {
 
     private void init() {
 
+        headerPanel = new JPanel();
+        headerPanel.setLayout(new BoxLayout(headerPanel, Y_AXIS));
+        headerPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0),
+                BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(""), BorderFactory.createEmptyBorder(3, 5, 5, 0))));
+
+
         opPanel = new JPanel();
         opPanel.setLayout(new BoxLayout(opPanel, X_AXIS));
         opPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0),
                 BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Add/Remove Messages"), BorderFactory.createEmptyBorder(3, 5, 5, 0))));
 
+
         contentSelector = new JComboBox<String>(new String[]{"JSON", "AUDIO"});
         contentSelector.setMaximumSize(new Dimension(contentSelector.getMinimumSize().width, contentSelector.getMinimumSize().height));
         opPanel.add(contentSelector);
-        opPanel.add(Box.createHorizontalStrut(5));
+        opPanel.add(Box.createHorizontalStrut(10));
 
         addButton = new JButton("Add");
         addButton.setMaximumSize(new Dimension(80, contentSelector.getMinimumSize().height));
         addButton.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
-                if(contentSelector.getSelectedItem().equals("JSON")) {
+                if (contentSelector.getSelectedItem().equals("JSON")) {
                     addNewCommandGui("", CommandType.JSON);
-                }else{
+                } else {
                     addNewCommandGui("", CommandType.AUDIO);
                 }
                 refresh();
@@ -69,6 +81,21 @@ public class CommandSamplerGuiPanel extends JPanel {
         opPanel.add(delButton);
         opPanel.add(Box.createHorizontalStrut(10));
 
+        timeoutPanel = new JPanel();
+        timeoutPanel.setLayout(new BoxLayout(timeoutPanel, X_AXIS));
+        timeoutPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0),
+                BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Timeout Timers"), BorderFactory.createEmptyBorder(3, 5, 5, 0))));
+
+        timeoutLabel = new JLabel("Timeout (sec): ");
+        timeoutField = new JTextField();
+        timeoutField.setColumns(10);
+//        timeoutField.setMaximumSize(new Dimension(Integer.MAX_VALUE, timeoutField.getMinimumSize().height));
+
+        timeoutPanel.add(timeoutLabel);
+        timeoutPanel.add(timeoutField);
+
+        opPanel.setMaximumSize(timeoutPanel.getMaximumSize());
+
         commandPanel = new JPanel();
         commandPanel.setLayout(new BoxLayout(commandPanel, Y_AXIS));
         commandPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0),
@@ -82,7 +109,9 @@ public class CommandSamplerGuiPanel extends JPanel {
 
 
         this.setLayout(new BorderLayout());
-        add(opPanel, BorderLayout.NORTH);
+        headerPanel.add(opPanel);
+        headerPanel.add(timeoutPanel);
+        add(headerPanel, BorderLayout.NORTH);
         add(commandPanel, BorderLayout.CENTER);
 
     }
@@ -119,7 +148,7 @@ public class CommandSamplerGuiPanel extends JPanel {
         }
     }
 
-    public void refresh(){
+    public void refresh() {
         revalidate();
         repaint();
     }

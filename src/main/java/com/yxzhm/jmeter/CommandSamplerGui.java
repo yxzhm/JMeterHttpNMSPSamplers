@@ -43,9 +43,10 @@ public class CommandSamplerGui extends AbstractSamplerGui {
         super.configure(element);
         if (element instanceof CommandSampler) {
             CommandSampler sampler = (CommandSampler) element;
+            settingsPanel.getTimeoutField().setText(String.valueOf(sampler.getTimeoutTimer()));
             int commandNum = sampler.getCommandNum();
             if (commandNum > 0) {
-                if(settingsPanel.getCommandPanel().getComponentCount()!=commandNum) {
+                if (settingsPanel.getCommandPanel().getComponentCount() != commandNum) {
                     settingsPanel.getCommandPanel().removeAll();
                     for (int i = 0; i < commandNum; i++) {
                         String content = sampler.getCommandContent(i);
@@ -62,6 +63,15 @@ public class CommandSamplerGui extends AbstractSamplerGui {
         super.configureTestElement(testElement);
         if (testElement instanceof CommandSampler) {
             CommandSampler sampler = (CommandSampler) testElement;
+            int timeout;
+            String timeoutStr = settingsPanel.getTimeoutField().getText();
+            try {
+                timeout = Integer.parseInt(timeoutStr);
+
+            } catch (Exception ex) {
+                timeout = 5;
+            }
+            sampler.setTimeoutTimer(timeout);
 
             int commandNum = settingsPanel.getCommandPanel().getComponentCount();
             sampler.setCommandNum(commandNum);

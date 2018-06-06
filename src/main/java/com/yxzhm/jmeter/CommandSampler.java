@@ -16,6 +16,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import static jodd.util.ThreadUtil.sleep;
+
 public class CommandSampler extends AbstractSampler implements ThreadListener {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(CommandSampler.class);
 
@@ -57,6 +59,7 @@ public class CommandSampler extends AbstractSampler implements ThreadListener {
                     String content = getCommandContent(i);
                     logger.info("SED: " + content);
                     ws.sendText(content);
+                    sleep(20);
                 } else if (type == CommandSamplerGuiPanel.CommandType.AUDIO) {
                     try {
                         Path path = Paths.get(getCommandContent(i));
@@ -75,7 +78,11 @@ public class CommandSampler extends AbstractSampler implements ThreadListener {
             }
             result.sampleStart();
             long oldTime = System.currentTimeMillis();
-            long timeoutTimer = 5 * 1000;
+            int timeout = getTimeoutTimer();
+            if(timeout<=0){
+                timeout=5;
+            }
+            long timeoutTimer = timeout * 1000;
             while (receivedMsg.size() < 4) {
                 logger.debug("Waiting for messages");
                 try {
@@ -130,6 +137,14 @@ public class CommandSampler extends AbstractSampler implements ThreadListener {
     public void setCommandNum(int value) {
         logger.info("Set CommandNum " + value);
         setProperty("command_num", value);
+    }
+
+    public int getTimeoutTimer(){
+        return getPropertyAsInt("timeout");
+    }
+
+    public void setTimeoutTimer(int value){
+        setProperty("timeout", value);
     }
 
     public String getCommandContent(int index) {
