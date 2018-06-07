@@ -83,7 +83,7 @@ public class CommandSampler extends AbstractSampler implements ThreadListener {
                 timeout=5;
             }
             long timeoutTimer = timeout * 1000;
-            while (receivedMsg.size() < 4) {
+            while (true) {
                 logger.debug("Waiting for messages");
                 try {
                     Thread.sleep(50);
