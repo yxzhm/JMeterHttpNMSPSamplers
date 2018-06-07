@@ -83,6 +83,7 @@ public class CommandSampler extends AbstractSampler implements ThreadListener {
                 timeout=5;
             }
             long timeoutTimer = timeout * 1000;
+            boolean isEnd = false;
             while (true) {
                 logger.debug("Waiting for messages");
                 try {
@@ -99,12 +100,15 @@ public class CommandSampler extends AbstractSampler implements ThreadListener {
 
                     for (String msg : receivedMsg) {
                         if (msg.toLowerCase().contains("query_response") && result.isStampedAtStart()) {
-                            result.sampleEnd();
+                            if(!isEnd) {
+                                result.sampleEnd();
+                                isEnd=true;
+                            }
                         }
                         if (msg.toLowerCase().contains("transaction completed")) {
                             result.setResponseMessage(sb.toString());
                             result.setSuccessful(true);
-                            break;
+                            return result;
                         }
                     }
                 } catch (InterruptedException e) {
